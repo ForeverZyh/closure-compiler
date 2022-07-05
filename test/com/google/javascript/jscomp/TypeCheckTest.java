@@ -29288,6 +29288,19 @@ public final class TypeCheckTest extends TypeCheckTestCase {
         .run();
   }
 
+  @Test
+  @Ignore("b/221480261")
+  public void testSymbolIteratorMethod() {
+    newTest()
+        .addSource(
+            "class C {",
+            "  /** @return {!Iterator<number>} */",
+            "  [Symbol.iterator]() { }",
+            "}")
+        .addDiagnostic(CONFLICTING_GETTER_SETTER_TYPE)
+        .run();
+  }
+
   private void testClosureTypes(String js, String description) {
     testClosureTypesMultipleWarnings(
         js, description == null ? null : ImmutableList.of(description));
