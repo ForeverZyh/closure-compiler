@@ -5492,6 +5492,22 @@ public final class TypedScopeCreatorTest extends CompilerTestCase {
   }
 
   @Test
+  public void testGoogRequire_namedExportImportedAsNamespace_andModded() {
+    testSame(
+        srcs(
+            "goog.module('a'); /** @type {number} */ exports.x = 0;",
+            "goog.module('b'); const a = goog.require('a'); X: a.x;",
+            "goog.module('c'); const a = goog.require('a'); X: a.x;"));
+
+    Node xNode = getLabeledStatement("X").statementNode.getOnlyChild();
+    assertNode(xNode).hasJSTypeThat().isNumber();
+
+    TypedVar xVar = getLabeledStatement("X").enclosingScope.getSlot("a");
+    assertThat(xVar).hasJSTypeThat().isObjectTypeWithProperty("x");
+    assertThat(xVar).isNotInferred();
+  }
+
+  @Test
   public void testGoogRequire_destructuringInferredNamedExport() {
     testSame(
         srcs(
